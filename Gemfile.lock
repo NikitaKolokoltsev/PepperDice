@@ -38,16 +38,27 @@ GEM
     json (2.6.1)
     method_source (1.0.0)
     multipart-post (2.1.1)
+    mustermann (1.1.1)
+      ruby2_keywords (~> 0.0.1)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    rack (2.2.3)
+    rack-protection (2.2.0)
+      rack
     rmagick (4.2.5)
     ruby2_keywords (0.0.5)
+    sinatra (2.2.0)
+      mustermann (~> 1.0)
+      rack (~> 2.2)
+      rack-protection (= 2.2.0)
+      tilt (~> 2.0)
     telegram-bot-ruby (0.19.2)
       dry-inflector
       faraday (~> 1.0)
       virtus (~> 2.0)
     thread_safe (0.3.6)
+    tilt (2.0.10)
     virtus (2.0.0)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -61,6 +72,7 @@ DEPENDENCIES
   json
   pry
   rmagick
+  sinatra
   telegram-bot-ruby
 
 RUBY VERSION

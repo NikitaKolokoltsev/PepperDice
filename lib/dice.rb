@@ -18,9 +18,9 @@ class Dice
       'Two Pair'
     elsif values === [1, 1, 3]
       'Three-of-a-kind'
-    elsif dices === [1,2,3,4,5]
+    elsif dices === [1, 2, 3, 4, 5]
       'Small Straight'
-    elsif dices === [2,3,4,5,6]
+    elsif dices === [2, 3, 4, 5, 6]
       'Big Straight'
     elsif values === [2, 3]
       'Full House'
