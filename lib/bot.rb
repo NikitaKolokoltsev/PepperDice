@@ -84,8 +84,6 @@ class Bot
 
       image = Image.new(combination, picked).build.write('out.png')
 
-      binding.pry
-
       @bot.api.edit_message_media(
         chat_id: query.message.chat.id,
         message_id: query.message.message_id,
