@@ -92,14 +92,16 @@ class Bot
         reply_markup: reroll_keyboard(combination, picked)
       )
     when 'reroll'
-      combination = data[:c]
+      old_combination = data[:c]
       picked = data[:p]
-
-      picked.sort.reverse.each { |index| combination.delete_at(index) }
 
       rerolled = Dice.roll(picked.count)
 
-      combination = combination.concat(rerolled)
+      combination = old_combination
+        .each_with_index
+        .reject { |_, index| picked.include?(index) }
+        .map(&:first)
+        .concat(rerolled)
       combination_name = Dice.name(combination)
 
       image = Image.new(combination).build.write('out.png')
@@ -107,7 +109,7 @@ class Bot
       @bot.api.edit_message_reply_markup(
         chat_id: query.message.chat.id,
         message_id: query.message.message_id,
-        reply_markup: reroll_keyboard(combination, picked, rerolled: true)
+        reply_markup: reroll_keyboard(old_combination, picked, rerolled: true)
       )
       @bot.api.send_photo(
         chat_id: query.message.chat.id,
