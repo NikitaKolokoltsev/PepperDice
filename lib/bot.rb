@@ -33,7 +33,10 @@ class Bot
   def process_message(message)
     case message.text
     when '/start'
-      actions = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: ['roll'], resize_keyboard: true)
+      actions = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
+        keyboard: [['roll', 'dice']],
+        resize_keyboard: true
+      )
 
       @bot.api.send_message(
         chat_id: message.chat.id,
@@ -46,14 +49,21 @@ class Bot
 
       image = Image.new(combination).build.write('out.png')
 
-      @bot.api.send_message(
-        chat_id: message.chat.id,
-        text: "First roll: #{combination} - #{combination_name}"
-      )
       @bot.api.send_photo(
         chat_id: message.chat.id,
         photo: Faraday::UploadIO.new('out.png', 'image/png'),
-        reply_markup: reroll_keyboard(combination)
+        reply_markup: reroll_keyboard(combination),
+        caption: "First roll: #{combination} - #{combination_name}"
+      )
+    when 'dice'
+      dice = Dice.roll(1)
+
+      image = Image.new(dice).build.write('out.png')
+
+      @bot.api.send_photo(
+        chat_id: message.chat.id,
+        photo: Faraday::UploadIO.new('out.png', 'image/png'),
+        caption: dice[0]
       )
     else
       @bot.api.send_message(
@@ -71,9 +81,16 @@ class Bot
       combination = data[:c]
       combination_name = Dice.name(combination)
 
-      @bot.api.send_message(
+      @bot.api.edit_message_media(
         chat_id: query.message.chat.id,
-        text: "Result: #{combination} - #{combination_name}"
+        message_id: query.message.message_id,
+        media: {
+          type: 'photo',
+          media: 'attach://image',
+          caption: "Result: #{combination} - #{combination_name} 😎"
+        }.to_json,
+        image: Faraday::UploadIO.new('out.png', 'image/png'),
+        reply_markup: reroll_keyboard(combination, rerolled: true)
       )
     when 'dice_reroll'
       reroll_dice = data[:d]
@@ -81,13 +98,18 @@ class Bot
         data[:p].reject{ |index| index == reroll_dice[1] } :
         data[:p].concat([reroll_dice[1]])
       combination = data[:c]
+      combination_name = Dice.name(combination)
 
       image = Image.new(combination, picked).build.write('out.png')
 
       @bot.api.edit_message_media(
         chat_id: query.message.chat.id,
         message_id: query.message.message_id,
-        media: { type: 'photo', media: 'attach://image' }.to_json,
+        media: {
+          type: 'photo',
+          media: 'attach://image',
+          caption: "First roll: #{combination} - #{combination_name}"
+        }.to_json,
         image: Faraday::UploadIO.new('out.png', 'image/png'),
         reply_markup: reroll_keyboard(combination, picked)
       )
@@ -114,10 +136,7 @@ class Bot
       @bot.api.send_photo(
         chat_id: query.message.chat.id,
         photo: Faraday::UploadIO.new('out.png', 'image/png'),
-      )
-      @bot.api.send_message(
-        chat_id: query.message.chat.id,
-        text: "Result: #{combination} - #{combination_name}"
+        caption: "Result: #{combination} - #{combination_name}"
       )
     end
   end
